@@ -1,13 +1,18 @@
 package org.bidwik.bid.Entity;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bidwik.bid.Enum.ERole;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -38,7 +43,7 @@ import lombok.Setter;
     name = "users"
 )
 @EntityListeners(AuditingEntityListener.class)
-public class User {
+public class User implements UserDetails{
     
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -70,10 +75,26 @@ public class User {
     @Builder.Default
     private boolean isLocked = false;
 
+    private boolean is2FAEnabled;
+
+    private String mfaSecret;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roles.stream()
+            .map(r -> new SimpleGrantedAuthority(r.name()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 
 }
