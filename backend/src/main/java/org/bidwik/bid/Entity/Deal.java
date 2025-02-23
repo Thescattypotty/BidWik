@@ -1,16 +1,16 @@
 package org.bidwik.bid.Entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -19,27 +19,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
 @Entity
-@Table(name = "categories")
-public class Category {
-
+@Table(name = "deals")
+@EntityListeners(AuditingEntityListener.class)
+public class Deal {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private String name;
+    @ManyToOne
+    private Bid bid;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] icon;
+    @ManyToOne
+    private User winner;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "parent_id", nullable = true)
-    private Category parent;
+    @CreatedDate
+    private LocalDateTime createdAt;
 }
